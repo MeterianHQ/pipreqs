@@ -47,8 +47,6 @@ import requests
 from yarg import json2package
 from yarg.exceptions import HTTPError
 
-from pipreqs import __version__
-
 REGEXP = [
     re.compile(r'^import (.+)$'),
     re.compile(r'^from ((?!\.+).*?) import (?:.*)$')
@@ -188,7 +186,10 @@ def get_imports_info(
                 "{0}{1}/json".format(pypi_server, item), proxies=proxy)
             if response.status_code == 200:
                 if hasattr(response.content, 'decode'):
-                    data = json2package(response.content.decode())
+                    try:
+                        data = json2package(response.content.decode())
+                    except:
+                        data = json2package(response.content)
                 else:
                     data = json2package(response.content)
             elif response.status_code >= 300:
@@ -462,7 +463,7 @@ def init(args):
 
 
 def main():  # pragma: no cover
-    args = docopt(__doc__, version=__version__)
+    args = docopt(__doc__, version='0.4.10.M')
     log_level = logging.DEBUG if args['--debug'] else logging.INFO
     logging.basicConfig(level=log_level, format='%(levelname)s: %(message)s')
 
